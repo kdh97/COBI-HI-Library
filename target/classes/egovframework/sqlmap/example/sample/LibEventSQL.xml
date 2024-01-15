@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="LibEventSpace">
+
+	<typeAlias  alias="egovMap"   type="org.egovframe.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="defaultVO" type="egov.library.service.DefaultVO"/>
+	<typeAlias  alias="libeventVO"  type="egov.library.service.LibEventVO"/>
+	
+	<insert id="libeventDAO.libEventWriteSave">
+		      INSERT INTO LIBEVENTBOARD( UNQ
+                      ,TITLE      
+                      ,NAME   
+                      ,CONTENT
+                      ,FILE1   <!-- 파일추가 -->
+                      ,FILE2   <!-- 파일추가 -->
+                      ,RDATE
+                      ) 
+                 VALUES( LIBEVENTBOARD_SEQ.NEXTVAL
+                    ,'$title$'
+                    ,'$name$'
+                    ,'$content$'
+                    ,'$file1$'
+                    ,'$file2$'
+                    ,SYSDATE
+                    )          	  
+	</insert>
+	
+	<select id="libeventDAO.selectLibEventList" resultClass="egovMap">
+	
+	   SELECT b2.* FROM (
+          SELECT rownum rn, a2.* FROM (
+              SELECT a.* FROM (
+                  SELECT unq
+                      ,title
+                      ,name
+                      ,hits
+                      ,file1
+                      ,file2
+                      ,to_char(rdate,'yyyy-mm-dd') rdate
+                  FROM libeventboard
+                  ORDER BY unq DESC
+              ) a
+              WHERE 1=1
+              <isNotNull property="searchCondition">
+			  	<isNotEmpty property="searchCondition">
+			    	AND $searchCondition$ LIKE '%$searchKeyword$%'
+		      	</isNotEmpty>
+		      </isNotNull>
+          ) a2
+      ) b2
+      WHERE rn BETWEEN $firstIndex$ AND $lastIndex$ 
+	</select>
+	<!-- 회원만 보는 List2 -->
+	<select id="libeventDAO.selectLibEventList2" resultClass="egovMap">
+	
+	   SELECT b2.* FROM (
+          SELECT rownum rn, a2.* FROM (
+              SELECT a.* FROM (
+                  SELECT unq
+                      ,title
+                      ,name
+                      ,hits
+                      ,file1
+                      ,file2
+                      ,to_char(rdate,'yyyy-mm-dd') rdate
+                  FROM libeventboard
+                  ORDER BY unq DESC
+              ) a
+              WHERE 1=1
+              <isNotNull property="searchCondition">
+			  	<isNotEmpty property="searchCondition">
+			    	AND $searchCondition$ LIKE '%$searchKeyword$%'
+		      	</isNotEmpty>
+		      </isNotNull>
+          ) a2
+      ) b2
+      WHERE rn BETWEEN $firstIndex$ AND $lastIndex$ 
+	</select>
+	
+
+	<select id="libeventDAO.selectLibEventTotal" resultClass="int">
+		select count(*) from (SELECT title,content,to_char(rdate,'yyyy-mm-dd') rdate FROM libeventboard
+			WHERE  1 = 1)
+				  <isNotNull property="searchCondition">
+				  	<isNotEmpty property="searchCondition">
+				    	  WHERE  $searchCondition$ LIKE '%$searchKeyword$%'
+			      	</isNotEmpty>
+			      </isNotNull>
+	</select>
+	<select id="libeventDAO.selectLibEventDetail" resultClass="libeventVO">
+		SELECT   unq
+        		,title
+        		,name
+        		,hits
+        		,to_char(rdate,'yyyy-mm-dd') rdate
+        		,content
+        		,file1
+        		,file2
+           FROM libeventboard 
+          WHERE 
+          		unq='$unq$'
+	</select>
+	<!-- 회원만 보는 Detail2 -->
+	<select id="libeventDAO.selectLibEventDetail2" resultClass="libeventVO">
+		SELECT   unq
+        		,title
+        		,name
+        		,hits
+        		,to_char(rdate,'yyyy-mm-dd') rdate
+        		,content
+        		,file1
+        		,file2
+           FROM libeventboard 
+          WHERE 
+          		unq='$unq$'
+	</select>
+	<update id="libeventDAO.updateLibEventHits">
+      UPDATE libeventboard SET hits=hits+1 WHERE unq=#unq#
+   </update>
+   
+   	<update id="libeventDAO.updateEvent">
+		UPDATE libeventboard  SET
+				        TITLE='$title$'    
+				       ,NAME='$name$'   
+				       ,CONTENT='$content$'
+				       ,FILE1=CASE
+							        WHEN '$file1$' IS NOT NULL THEN '$file1$'
+							        ELSE FILE1
+							   			 END
+				       ,FILE2=CASE
+							        WHEN '$file1$' IS NOT NULL THEN '$file1$'
+							        ELSE FILE1
+							   			 END
+				WHERE
+						UNQ='$unq$' 
+	</update> 
+	
+	<delete id="libeventDAO.deleteEvent">
+		DELETE FROM libeventboard WHERE unq=#unq#
+	</delete>
+	<select id="libeventDAO.selectLibEventFileName" resultClass="egovMap">
+		SELECT file1,unq FROM LIBEVENTBOARD 
+	    WHERE 
+	    	file1 IS NOT NULL 
+	    ORDER BY RDATE DESC
+	    FETCH FIRST 4 ROWS ONLY
+	</select>
+
+</sqlMap>
+
+
+
+
+

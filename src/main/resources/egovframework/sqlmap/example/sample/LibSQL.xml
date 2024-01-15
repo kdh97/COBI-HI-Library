@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="LibSpace">
+
+	<typeAlias  alias="egovMap"   type="org.egovframe.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="defaultVO" type="egov.library.service.DefaultVO"/>
+	<typeAlias  alias="libVO"  type="egov.library.service.LibVO"/>
+	
+	<insert id="libDAO.libNoticeWriteSave">
+		      INSERT INTO LIBNOTICEBOARD( UNQ
+                      ,TITLE      
+                      ,NAME   
+                      ,CONTENT
+                      ,FILE1   <!-- 파일추가 -->
+                      ,FILE2   <!-- 파일추가 -->
+                      ,RDATE
+                      ,EMPS) 
+                 VALUES( LIBNOTICEBOARD_SEQ.NEXTVAL
+                    ,'$title$'
+                    ,'$name$'
+                    ,'$content$'
+                    ,'$file1$'
+                    ,'$file2$'
+                    ,SYSDATE
+                    ,'$emps$'
+                    )          	  
+	</insert>
+	
+	<select id="libDAO.selectLibNoticeList" resultClass="egovMap">
+	
+	   SELECT b2.* FROM (
+        SELECT rownum rn, a2.* FROM ( 
+            SELECT c.* from  (
+               SELECT  a.*  from (
+                    SELECT  unq
+                          ,title
+                          ,name
+                          ,hits
+                          ,file1
+                          ,file2
+                          ,to_char(rdate,'yyyy-mm-dd') rdate
+                            ,emps 
+                     FROM  libnoticeboard 
+                     WHERE emps='Y' 
+                   
+                         ORDER BY unq DESC ) a
+        			<isNotNull property="searchCondition">
+					  	<isNotEmpty property="searchCondition">
+					    	  WHERE  $searchCondition$ LIKE '%$searchKeyword$%'
+				      	</isNotEmpty>
+				      </isNotNull>
+                
+                UNION ALL 
+                
+                SELECT  b.*  from (
+                    SELECT  unq
+                          ,title
+                          ,name
+                          ,hits
+                          ,file1
+                          ,file2
+                          ,to_char(rdate,'yyyy-mm-dd') rdate
+                            ,emps  
+                       FROM libnoticeboard 
+                      WHERE emps='N'
+                      
+                           ORDER BY unq DESC ) b
+                   	<isNotNull property="searchCondition">
+					  	<isNotEmpty property="searchCondition">
+					    	  WHERE  $searchCondition$ LIKE '%$searchKeyword$%'
+				      	</isNotEmpty>
+				      </isNotNull>
+                ) c  
+
+              WHERE  1=1
+             
+              ) a2 ) b2
+              
+   WHERE    
+        rn  BETWEEN  $firstIndex$  AND  $lastIndex$ 
+
+	</select>
+	<!-- 회원만 -->
+	<select id="libDAO.selectLibNoticeList2" resultClass="egovMap">
+	
+	   SELECT b2.* FROM (
+        SELECT rownum rn, a2.* FROM ( 
+            SELECT c.* from  (
+               SELECT  a.*  from (
+                    SELECT  unq
+                          ,title
+                          ,name
+                          ,hits
+                          ,file1
+                          ,file2
+                          ,to_char(rdate,'yyyy-mm-dd') rdate
+                            ,emps 
+                     FROM  libnoticeboard 
+                     WHERE emps='Y' 
+                    
+                         ORDER BY unq DESC ) a
+                      <isNotNull property="searchCondition">
+					  	<isNotEmpty property="searchCondition">
+					    	  WHERE  $searchCondition$ LIKE '%$searchKeyword$%'
+				      	</isNotEmpty>
+				      </isNotNull>
+                
+                UNION ALL 
+                
+                SELECT  b.*  from (
+                    SELECT  unq
+                          ,title
+                          ,name
+                          ,hits
+                          ,file1
+                          ,file2
+                          ,to_char(rdate,'yyyy-mm-dd') rdate
+                            ,emps  
+                       FROM libnoticeboard 
+                      WHERE emps='N'
+                     
+                           ORDER BY unq DESC ) b
+        			<isNotNull property="searchCondition">
+					  	<isNotEmpty property="searchCondition">
+					    	  WHERE  $searchCondition$ LIKE '%$searchKeyword$%'
+				      	</isNotEmpty>
+				      </isNotNull>
+                ) c  
+
+              WHERE  1=1
+             
+              ) a2 ) b2
+              
+   WHERE    
+        rn  BETWEEN  $firstIndex$  AND  $lastIndex$  
+
+	</select>
+
+	<select id="libDAO.selectLibNoticeTotal" resultClass="int">
+		select count(*) from (SELECT title,content,to_char(rdate,'yyyy-mm-dd') rdate FROM libnoticeboard
+			WHERE  1 = 1)
+				  <isNotNull property="searchCondition">
+				  	<isNotEmpty property="searchCondition">
+				    	  WHERE  $searchCondition$ LIKE '%$searchKeyword$%'
+			      	</isNotEmpty>
+			      </isNotNull>
+	</select>
+	<select id="libDAO.selectLibNoticeDetail" resultClass="libVO">
+		SELECT   unq
+        		,title
+        		,name
+        		,hits
+        		,to_char(rdate,'yyyy-mm-dd') rdate
+        		,content
+        		,file1
+        		,file2
+                ,emps  
+           FROM libnoticeboard 
+          WHERE 
+          		unq=#unq#
+	</select>
+	<select id="libDAO.selectLibNoticeDetail2" resultClass="libVO">
+		SELECT   unq
+        		,title
+        		,name
+        		,hits
+        		,to_char(rdate,'yyyy-mm-dd') rdate
+        		,content
+        		,file1
+        		,file2
+                ,emps  
+           FROM libnoticeboard 
+          WHERE 
+          		unq=#unq#
+	</select>
+	<update id="libDAO.updateLibNoticeHits">
+      UPDATE libnoticeboard SET hits=hits+1 WHERE unq=#unq#
+   </update>
+   	<update id="libDAO.updateNotice">
+		UPDATE libnoticeboard  SET
+				        TITLE='$title$'    
+				       ,NAME='$name$'   
+				       ,CONTENT='$content$'
+				       ,FILE1='$file1$'
+				       ,FILE2='$file2$'
+				       <isNotNull property="emps">
+				       ,EMPS='$emps$'
+				       </isNotNull>
+				       ,EMPS='N'
+				WHERE
+						UNQ='$unq$' 
+	</update> 
+	
+	<delete id="libDAO.deleteNotice">
+		DELETE FROM libnoticeboard WHERE unq=#unq#
+	</delete>
+	
+
+</sqlMap>
+
+
+
+
+

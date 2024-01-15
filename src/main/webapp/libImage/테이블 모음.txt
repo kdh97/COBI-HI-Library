@@ -1,0 +1,220 @@
+테이블 모음
+
+
+=========== 회원가입 테이블 =============
+
+아이디 - 중복체크 userid - primary key
+비밀번호 userpass - not null
+(비밀번호 확인 userpass2) - 화면상에서 확인
+이름 name - not null
+생년월일 birth - not null
+휴대폰 번호 phone - not  null
+주소 addr - not null
+이메일 email - not null
+메일체크 mailchk
+문자체크 smschk
+-----------------
+가입일 rdate
+정보수정일 udate
+
+create table libmemberinfo(
+userid varchar2(50) primary key,
+userpass varchar2(50) not null,
+name varchar2(50) not null,
+birth date not null,
+phone varchar2(20) not null,
+email varchar2(50) not null,
+addr varchar2(100) not null,
+mailchk char(1) default 'N',
+smschk char(1) default 'N',
+rdate timestamp,
+udate timestamp
+);
+
+
+
+
+============== 열람실 사용 테이블 ===================
+
+
+
+
+
+1. libReserve    
+- sit_number - 좌석번호
+- session_id - 세션ID
+- sit_status - 좌석현황 - 기본 'N' , 사용시 'Y'
+
+create table libReserve ( 
+sit_number number not null primary key,
+session_id varchar2(30),
+sit_status char(1) default 'N' check(sit_status in ('Y','N') )
+);
+
+2. libArchives
+
+- sit_number - 사용했었던 좌석번호
+- session_id - 사용했었던 세션ID
+- sdate - 좌석대여 시작시간 
+- edate - 좌석대여 종료시간 
+
+create table libArchives (
+sit_number number not null,
+session_id varchar2(30) not null,
+sdate timestamp,
+edate timestamp
+);
+
+insert into libReserve values (1,'',default);
+insert into libReserve values (2,'',default);
+insert into libReserve values (3,'',default);
+insert into libReserve values (4,'',default);
+insert into libReserve values (5,'',default);
+insert into libReserve values (6,'',default);
+insert into libReserve values (7,'',default);
+insert into libReserve values (8,'',default);
+insert into libReserve values (9,'',default);
+insert into libReserve values (10,'',default);
+insert into libReserve values (11,'',default);
+insert into libReserve values (12,'',default);
+insert into libReserve values (13,'',default);
+insert into libReserve values (14,'',default);
+insert into libReserve values (15,'',default);
+insert into libReserve values (16,'',default);
+insert into libReserve values (17,'',default);
+insert into libReserve values (18,'',default);
+insert into libReserve values (19,'',default);
+insert into libReserve values (20,'',default);
+insert into libReserve values (21,'',default);
+insert into libReserve values (22,'',default);
+insert into libReserve values (23,'',default);
+insert into libReserve values (24,'',default);
+insert into libReserve values (25,'',default);
+insert into libReserve values (26,'',default);
+insert into libReserve values (27,'',default);
+insert into libReserve values (28,'',default);
+insert into libReserve values (29,'',default);
+insert into libReserve values (30,'',default);
+insert into libReserve values (31,'',default);
+insert into libReserve values (32,'',default);
+insert into libReserve values (33,'',default);
+insert into libReserve values (34,'',default);
+insert into libReserve values (35,'',default);
+insert into libReserve values (36,'',default);
+insert into libReserve values (37,'',default);
+insert into libReserve values (38,'',default);
+insert into libReserve values (39,'',default);
+insert into libReserve values (40,'',default);
+insert into libReserve values (41,'',default);
+insert into libReserve values (42,'',default);
+insert into libReserve values (43,'',default);
+insert into libReserve values (44,'',default);
+insert into libReserve values (45,'',default);
+insert into libReserve values (46,'',default);
+insert into libReserve values (47,'',default);
+insert into libReserve values (48,'',default);
+insert into libReserve values (49,'',default);
+insert into libReserve values (50,'',default);
+
+
+====================== 문화행사 테이블 ======================
+
+
+CREATE TABLE "LIBEVENTBOARD" 
+   (   "UNQ" NUMBER, 
+   "TITLE" VARCHAR2(100 BYTE), 
+   "PASS" VARCHAR2(100 BYTE), 
+   "NAME" VARCHAR2(20 BYTE) DEFAULT '관리자', 
+   "CONTENT" VARCHAR2(4000 BYTE), 
+   "HITS" NUMBER DEFAULT '0', 
+   "FILE1" VARCHAR2(1000 BYTE), 
+   "FILE2" VARCHAR2(1000 BYTE), 
+   "RDATE" TIMESTAMP (6), 
+    PRIMARY KEY ("UNQ") );
+
+CREATE SEQUENCE  LIBEVENTBOARD_SEQ 
+   START WITH 1 
+   INCREMENT BY 1
+   MAXVALUE 99999;
+
+
+====================== 공지사항 테이블 =======================
+
+
+
+CREATE TABLE "LIBNOTICEBOARD" 
+   (   "UNQ" NUMBER, 
+   "TITLE" VARCHAR2(100 BYTE), 
+   "PASS" VARCHAR2(100 BYTE), 
+   "NAME" VARCHAR2(20 BYTE) DEFAULT '관리자', 
+   "CONTENT" VARCHAR2(4000 BYTE), 
+   "HITS" NUMBER DEFAULT '0', 
+   "EMPS" CHAR(1 BYTE) DEFAULT 'N', 
+   "FILE1" VARCHAR2(500 BYTE), 
+   "FILE2" VARCHAR2(500 BYTE), 
+   "RDATE" TIMESTAMP (6), 
+    PRIMARY KEY ("UNQ") );
+
+CREATE SEQUENCE  LIBNOTICEBOARD_SEQ 
+   START WITH 1 
+   INCREMENT BY 1
+   MAXVALUE 99999;
+
+
+======================= 일정관리 테이블 =======================
+
+CREATE TABLE "LIBCALENDAR" 
+   (   "UNQ" NUMBER(*,0), 
+   "YEAR" NUMBER, 
+   "MONTH" NUMBER, 
+   "DAY" NUMBER, 
+   "TITLE" VARCHAR2(50 BYTE), 
+   "CONTENT" VARCHAR2(4000 BYTE)
+   );
+
+CREATE SEQUENCE  "LIBCALENDAR_SEQ" 
+START WITH 1
+INCREMENT BY 1 
+MAXVALUE 99999;
+
+
+==================== 도서 테이블 =========================
+
+CREATE TABLE "BOOK" 
+   (   "UNQ" NUMBER, 
+   "ID" VARCHAR2(50 BYTE), 
+   "THUMBNAIL" VARCHAR2(500 BYTE), 
+   "TITLE" VARCHAR2(100 BYTE), 
+   "AUTHORS" VARCHAR2(100 BYTE), 
+   "PUBLISHER" VARCHAR2(100 BYTE), 
+   "ISBN" VARCHAR2(100 BYTE), 
+   "CONTENTS" CLOB, 
+   "HITS" NUMBER DEFAULT 0, 
+   "DATETIME" TIMESTAMP (6), 
+   "RDATE" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+    PRIMARY KEY ("UNQ") );
+
+CREATE SEQUENCE BOOK_SEQ
+START WITH 1
+INCREMENT BY 1
+MAXVALUE 999999;
+
+
+==================== 대여기록 테이블 =======================
+
+CREATE TABLE LIBBOOKHISTORY
+   (   "UNQ" NUMBER PRIMARY KEY, 
+   "ID" VARCHAR2(50 BYTE), 
+   "THUMBNAIL" VARCHAR2(500 BYTE), 
+   "TITLE" VARCHAR2(100 BYTE), 
+   "AUTHORS" VARCHAR2(100 BYTE),
+   "DATETIME" TIMESTAMP (6), 
+   "ISBN" VARCHAR2(100 BYTE), 
+   "CODE" NUMBER,
+   "RDATE" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP,
+   "EDATE" TIMESTAMP (6));    
+
+create sequence libbookhistory_seq
+   start with 1
+   increment by 1
+   maxvalue 999999;

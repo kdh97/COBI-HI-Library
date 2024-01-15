@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="LibrarySpace">
+
+	<typeAlias  alias="egovMap"   type="org.egovframe.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="defaultVO" type="egov.library.service.DefaultVO"/>
+	<typeAlias  alias="libraryVO" type="egov.library.service.LibraryVO"/>
+	
+	<insert id="libraryDAO.insertBook">
+		INSERT INTO BOOK( UNQ
+					       ,THUMBNAIL   
+					       ,TITLE   
+					       ,AUTHORS
+					       ,PUBLISHER
+					       ,ISBN
+					       ,CONTENTS
+					       ,DATETIME) 
+		           VALUES( BOOK_SEQ.NEXTVAL 
+						  ,'$thumbnail$'
+						  ,'$title$'
+						  ,'$authors$'
+						  ,'$publisher$'
+						  ,'$isbn$'
+						  ,'$contents$'
+						  ,TO_DATE('$datetime$', 'YYYY-MM-DD'))
+	</insert>
+	
+	<insert id="libraryDAO.insertBH">
+		INSERT INTO LIBBOOKHISTORY( UNQ
+								   ,ID
+								   ,THUMBNAIL   
+								   ,TITLE   
+								   ,AUTHORS
+								   ,DATETIME
+								   ,ISBN
+								   ,CODE) 
+				           VALUES( LIBBOOKHISTORY_SEQ.NEXTVAL 
+				           		  ,#id#
+								  ,'$thumbnail$'
+								  ,'$title$'
+								  ,'$authors$'
+								  ,TO_DATE('$datetime$', 'YYYY-MM-DD')
+								  ,'$isbn$'
+								  ,'$unq$')
+	</insert>
+	
+	<select id="libraryDAO.selectBookList" resultClass="egovMap">
+    
+     SELECT b2.* FROM (
+	     SELECT rownum rn, a2.* FROM ( 
+				SELECT b.* from  (
+					SELECT  a.*  from (
+				        SELECT  unq
+				        		,id
+				        		,thumbnail 
+				        		,title
+				        		,authors 
+				        		,publisher  
+				        		,SUBSTR(isbn, -13) as isbn
+				        		,hits
+				        		,to_char(datetime,'yyyy') datetime  
+				         FROM  book 
+				      	 ORDER BY unq DESC ) a ) b 
+
+				  WHERE  1=1
+				  
+				  <isNotNull property="searchCondition">
+				  	<isNotEmpty property="searchCondition">
+				    	AND $searchCondition$ LIKE '%$searchKeyword$%'
+			      	</isNotEmpty>
+			      </isNotNull>
+				 
+				  ) a2 ) b2
+				  
+	WHERE 	
+		  rn  BETWEEN  $firstIndex$  AND  $lastIndex$ 
+   </select>
+   
+	<select id="libraryDAO.selectBookTotal" resultClass="int">
+		SELECT COUNT(*) FROM book 
+			WHERE  1 = 1
+				  <isNotNull property="searchCondition">
+				  	<isNotEmpty property="searchCondition">
+				    	  AND  $searchCondition$ LIKE '%$searchKeyword$%'
+			      	</isNotEmpty>
+			      </isNotNull>
+	</select>
+	
+	<select id="libraryDAO.selectBookDetail" resultClass="libraryVO">
+      SELECT    UNQ
+      		   ,ID
+		       ,THUMBNAIL   
+		       ,TITLE   
+		       ,AUTHORS
+		       ,PUBLISHER
+		       ,SUBSTR(isbn, -13) as isbn
+		       ,CONTENTS
+		       ,TO_CHAR(DATETIME,'YYYY-MM-DD') DATETIME
+     FROM
+             book
+      WHERE 
+             unq=#unq#
+   </select>
+   
+   <update id="libraryDAO.updateBookRentHits">
+      UPDATE book SET hits=hits+1 WHERE unq=#unq#
+   </update>
+   
+   <select id="libraryDAO.selectPopularBookList" resultClass="egovMap">
+
+				 <![CDATA[
+				 	SELECT rownum rn,a.* FROM (
+				        SELECT  unq
+				        		,thumbnail 
+				        		,title
+				        		,authors 
+				        		,publisher  
+				        		,SUBSTR(isbn, -13) as isbn
+				        		,TO_CHAR(datetime, 'yyyy') as datetime
+				        		,hits  
+				         FROM  book 
+				      	 order by hits desc
+				      	 ) a where rownum < 7
+				]]>
+	</select>
+	
+	<select id="libraryDAO.selectMainPopularBookList" resultClass="egovMap">
+
+				 <![CDATA[
+				 	SELECT rownum rn,a.* FROM (
+				        SELECT  unq
+				        		,thumbnail 
+				        		,title
+				        		,authors 
+				        		,publisher  
+				        		,SUBSTR(isbn, -13) as isbn
+				        		,hits  
+				         FROM  book 
+				      	 order by hits desc
+				      	 ) a where rownum < 5
+				]]>
+	</select>
+	
+	<select id="libraryDAO.selectNewBookList" resultClass="egovMap">
+
+				 <![CDATA[
+				 	SELECT rownum rn,a.* FROM (
+				        SELECT  unq
+				        		,thumbnail 
+				        		,title
+				        		,authors 
+				        		,publisher  
+				        		,SUBSTR(isbn, -13) as isbn
+				        		,TO_CHAR(datetime, 'yyyy') as datetime
+				        		,hits  
+				        		,TO_CHAR(rdate, 'yyyy-mm-dd') as rdate
+				         FROM  book 
+				      	 order by rdate desc
+				      	 ) a where rownum < 7
+				]]>
+	</select>
+	
+	<delete id="libraryDAO.deleteBook">
+   
+      DELETE FROM book WHERE unq='$unq$'
+   
+   </delete>
+
+	<select id="libraryDAO.selectISBN" resultClass="int">
+		
+		SELECT count(*) FROM book WHERE ISBN=#ISBN#
+		
+	</select>
+	
+	<update id="libraryDAO.updateRentId">
+		update book set ID = #id# where unq=#unq#
+	</update>
+	
+	<select id="libraryDAO.selectRentCount" resultClass="int">
+		SELECT count(*) FROM book WHERE ID=#id#
+	</select>
+	
+	<select id="libraryDAO.selectMyBookList" resultClass="egovMap">
+        SELECT unq
+        	  ,id
+        	  ,thumbnail
+        	  ,title
+        	  ,authors
+        	  ,publisher
+        	  ,SUBSTR(isbn, -13) as isbn
+        	  ,datetime 
+        	  ,to_char(sysdate,'yyyy-mm-dd') rdate
+        FROM BOOK WHERE id=#id# 	  
+    </select>
+    
+    <select id="libraryDAO.selectMyBookList2" resultClass="egovMap">
+        SELECT b.* FROM (
+	     		SELECT rownum rn, a.* FROM ( 
+				        SELECT thumbnail
+				        	  ,title
+				        	  ,authors
+				        	  ,SUBSTR(isbn, -13) as isbn
+				        	  ,datetime 
+				        	  ,to_char(rdate,'yyyy-mm-dd') rdate
+				        	  ,to_char(edate,'yyyy-mm-dd') edate
+				        	  ,code
+		        		FROM 
+		        			LIBBOOKHISTORY 
+		        		WHERE 
+		        			id=#id# AND EDATE is not null ORDER BY unq ) a ) b
+		WHERE rn  BETWEEN  $firstIndex$  AND  $lastIndex$
+    </select>
+    
+    <select id="libraryDAO.selectBHTotal" resultClass="int">
+		SELECT COUNT(*) total FROM LIBBOOKHISTORY
+				   WHERE id = #id# AND EDATE IS NOT NULL
+	</select>
+    
+    <update id="libraryDAO.updateReturnId">
+        UPDATE book SET id = NULL WHERE unq = #unq#
+    </update>
+    
+    <update id="libraryDAO.updateBH">
+    	UPDATE LIBBOOKHISTORY SET EDATE = SYSDATE WHERE id=#id# AND isbn=#isbn# AND EDATE IS NULL
+    </update>
+    
+    <select id="libraryDAO.selectBorrowBookList" resultClass="egovMap">
+    
+    	SELECT b2.* FROM (
+		     SELECT rownum rn, a2.* FROM ( 
+					SELECT b.* from  (
+						SELECT  a.*  from (
+					        SELECT  unq
+					        		,id
+					        		,thumbnail 
+					        		,title
+					        		,authors 
+					        		,publisher  
+					        		,SUBSTR(isbn, -13) as isbn
+					        		,hits  
+					         FROM  book 
+					      	 WHERE id IS NOT NULL ) a ) b 
+	
+					  WHERE  1=1
+					  
+					  <isNotNull property="searchCondition">
+					  	<isNotEmpty property="searchCondition">
+					    	AND $searchCondition$ LIKE '%$searchKeyword$%'
+				      	</isNotEmpty>
+				      </isNotNull>
+					 
+					  ) a2 ) b2
+					  
+		WHERE 	
+			  rn  BETWEEN  $firstIndex$  AND  $lastIndex$ 
+     
+    </select>
+    
+    <select id="libraryDAO.selectBorrowBookTotal" resultClass="int">
+		SELECT COUNT(*) FROM book 
+			WHERE id IS NOT NULL
+				  <isNotNull property="searchCondition">
+				  	<isNotEmpty property="searchCondition">
+				    	  AND  $searchCondition$ LIKE '%$searchKeyword$%'
+			      	</isNotEmpty>
+			      </isNotNull>
+	</select>
+	
+	<select id="libraryDAO.selectMemberCount" resultClass="int">
+   		SELECT COUNT(*) FROM LIBMEMBERINFO WHERE USERID = #id#
+	</select>
+    
+</sqlMap>
+
+
+
+
+
+
+

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="LibReserveSQL">
+
+	<typeAlias  alias="egovMap"   type="org.egovframe.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="LibrsVO" type="egov.libreserve.service"/>
+
+	<!-- 좌석 배정  -->
+	<update id="LibrsDAO.updateSit">
+		
+		UPDATE libreserve SET 
+			sit_status = 'Y',
+			session_id= #session_id#
+		WHERE sit_number = #sit_number#
+			
+	</update>
+	<select id="LibrsDAO.selectUserinfo1" resultClass="int">
+		
+		SELECT count(*) FROM libreserve WHERE session_id = #session_id#
+		
+	</select>
+	<select id="LibrsDAO.selectUserinfo2" resultClass="int">
+	
+		SELECT count(*) FROM libmemberinfo where userid = #session_id#
+	
+	</select>
+	<select id="LibrsDAO.selectAlreadySit" resultClass="egovMap">
+	
+		SELECT session_id,sit_number,sit_status from libreserve
+		
+	</select>
+	
+	<!-- 좌석 배정 기록  -->
+	<insert id="LibrsDAO.insertarchive">
+	
+		INSERT INTO libarchives
+			( sit_number,
+			  session_id,
+			  sdate,
+			  edate
+			)
+		VALUES
+			( #sit_number#,
+			  #session_id#,
+			  sysdate,
+			  default )
+	
+	</insert>
+	<update id="LibrsDAO.updateEdate">
+	
+		    UPDATE libarchives
+   			 	SET edate = sysdate
+    		WHERE session_id = #session_id#
+      			AND sit_number = #sit_number#
+     		 	AND edate IS NULL
+     		 	
+	</update>
+	<select id="LibrsDAO.selectSdate" resultClass="String">
+	
+		SELECT sdate FROM libarchives
+			WHERE sit_number = #sit_number#
+				AND session_id = #session_id#
+				AND edate IS NULL
+	
+	</select>
+	
+	<!-- 좌석 번호 리스트 -->
+	<select id="LibrsDAO.selectSitnumber" resultClass="egovMap">
+	
+		SELECT sit_number,sit_status,session_id FROM libreserve WHERE sit_number between 0 and 10  
+	
+	</select>
+	<select id="LibrsDAO.selectSitnumber1" resultClass="egovMap">
+	
+		SELECT sit_number,sit_status,session_id FROM libreserve WHERE sit_number between 11 and 20 
+	
+	</select>
+	<select id="LibrsDAO.selectSitnumber2" resultClass="egovMap">
+	
+		SELECT sit_number,sit_status,session_id FROM libreserve WHERE sit_number between 21 and 30 
+	
+	</select>
+	<select id="LibrsDAO.selectSitnumber3" resultClass="egovMap">
+	
+		SELECT sit_number,sit_status,session_id FROM libreserve WHERE sit_number between 31 and 40 
+	
+	</select>
+	<select id="LibrsDAO.selectSitnumber4" resultClass="egovMap">
+	
+		SELECT sit_number,sit_status,session_id FROM libreserve WHERE sit_number between 41 and 50 
+	
+	</select>
+	
+	<!-- 사용중인 좌석 갯수 -->
+	<select id="LibrsDAO.selectYSitTotal" resultClass="int">
+	
+		SELECT COUNT(*) FROM libreserve
+			WHERE sit_status = 'Y' 
+	
+	</select>
+	<select id="LibrsDAO.selectNSitTotal" resultClass="int">
+	
+		SELECT COUNT(*) FROM libreserve
+			WHERE sit_status = 'N' 
+	
+	</select>
+	<select id="LibrsDAO.selectSitid" resultClass="egovMap">
+	
+		SELECT sit_number,session_id FROM libreserve 
+	
+	</select>
+	
+	<!-- 좌석 사용 종료 -->
+	
+	<update id="LibrsDAO.updateSitout">
+			
+		UPDATE libreserve SET 
+			sit_status = 'N',
+			session_id = default
+		WHERE sit_number = #sit_number# and session_id = #session_id#
+		
+	</update>
+	
+	<!-- 좌석 관리 -->
+	
+	<update id="LibrsDAO.updateAdminSitout">
+	
+		UPDATE libreserve SET
+			sit_status = 'N'
+			session_id = default
+		WHERE sit_number = #sit_number#
+	
+	</update>
+	<select id="LibrsDAO.selectSitSdate" resultClass="egovMap">
+	
+		SELECT to_char(sdate,'hh24:mi') sdate,session_id,sit_number from libarchives WHERE edate is NULL
+		
+	</select>
+	<select id="LibrsDAO.selectSitName" resultClass="egovMap">
+	
+		SELECT name,userid FROM libmemberinfo
+	
+	</select>
+	
+	<!-- 좌석 배정기록 목록 -->
+	<select id="LibrsDAO.selectSitArchive" resultClass="egovMap">
+		
+		    SELECT b2.* FROM (
+	     SELECT rownum rn, a2.* FROM ( 
+				SELECT b.* from  (
+					SELECT  a.*  from (
+				        SELECT  to_char(sdate,'yyyy-mm-dd hh24:mi') sdate
+				        		,session_id
+				        		,sit_number
+				        		,to_char(edate,'yyyy-mm-dd hh24:mi') edate
+				         FROM  libarchives WHERE edate is NOT NULL AND session_id = #session_id#
+				      	 ORDER BY sdate DESC ) a ) b 
+
+				  WHERE  1=1
+			) a2 ) b2
+				  
+	WHERE 	
+		  rn  BETWEEN  $firstIndex$  AND  $lastIndex$ 
+		
+	
+	</select>
+	<select id="LibrsDAO.selectArchiveTotal" resultClass="int">
+		
+		SELECT count(*) count from libarchives where session_id = #session_id# AND edate is NOT NULL	
+	
+	</select>
+	<select id="LibrsDAO.selectArchiveName" resultClass="String">
+	
+		SELECT name FROM libmemberinfo where userid = #session_id#
+	
+	</select>
+	<select id="LibrsDAO.selectAdminSitArchive" resultClass="egovMap">
+	
+		SELECT b2.* FROM (
+	     	SELECT rownum rn, a2.* FROM ( 
+				SELECT b.* from  (
+					SELECT  a.*  from (
+				        SELECT  to_char(sdate,'yyyy-mm-dd hh24:mi') sdate
+				        		,session_id
+				        		,sit_number
+				        		,to_char(edate,'yyyy-mm-dd hh24:mi') edate
+				         FROM  libarchives WHERE edate is NOT NULL
+				      	 ORDER BY sdate DESC ) a ) b 
+
+				  WHERE  1=1
+
+			) a2 ) b2
+				  
+	WHERE 	
+		  rn  BETWEEN  $firstIndex$  AND  $lastIndex$ 
+		    <isNotNull property="searchCondition">
+					  	<isNotEmpty property="searchCondition">
+					    	  AND  $searchCondition$ LIKE '%$searchKeyword$%'
+				      	</isNotEmpty>
+				      </isNotNull>
+		
+	</select>
+	<select id="LibrsDAO.selectAdminArchiveTotal" resultClass="int">
+	
+			select count(*) from (SELECT session_id,sit_number,to_char(sdate,'yyyy-mm-dd hh24:mi') sdate FROM libarchives
+			WHERE  1 = 1 AND edate IS NOT NULL )
+				  <isNotNull property="searchCondition">
+				  	<isNotEmpty property="searchCondition">
+
+					    
+					         WHERE $searchCondition$ LIKE '%$searchKeyword$%'
+            			
+			      	</isNotEmpty>
+			      </isNotNull>
+	
+	</select>
+	<select id="LibrsDAO.selectAdminArchiveName" resultClass="egovMap">
+	
+		SELECT m.userid, m.name
+			FROM libmemberinfo m
+		WHERE m.userid IN 			(
+			SELECT DISTINCT a.session_id
+			FROM libarchives a
+		WHERE a.edate IS NOT NULL	)
+	
+	</select>
+	
+</sqlMap>
+
+
+
+
+

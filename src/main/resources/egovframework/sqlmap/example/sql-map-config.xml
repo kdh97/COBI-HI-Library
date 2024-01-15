@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<sqlMap resource="egovframework/sqlmap/example/sample/EgovSample_Sample_SQL.xml"/>
+	<sqlMap resource="egovframework/sqlmap/example/sample/LibMemberSQL.xml"/>
+	<sqlMap resource="egovframework/sqlmap/example/sample/LibAdminSQL.xml"/>
+	<sqlMap resource="egovframework/sqlmap/example/sample/LibSQL.xml"/>
+	<sqlMap resource="egovframework/sqlmap/example/sample/LibrarySQL.xml"/>
+	<sqlMap resource="egovframework/sqlmap/example/sample/LibEventSQL.xml"/>
+	<sqlMap resource="egovframework/sqlmap/example/sample/CalSQL.xml"/>
+	<sqlMap resource="egovframework/sqlmap/example/sample/LibReserveSQL.xml"/>
+</sqlMapConfig>

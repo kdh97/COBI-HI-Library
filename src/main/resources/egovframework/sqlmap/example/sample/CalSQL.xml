@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="LibrarySpace">
+
+	<typeAlias  alias="egovMap"   type="org.egovframe.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="defaultVO" type="egov.library.service.DefaultVO"/>
+	<typeAlias  alias="calVO" type="egov.library.service.CalVO"/>
+	
+	
+	 <select id="calDAO.selectCalList" resultClass="egovMap">
+	     select unq
+	     	   ,year
+	     	   ,month
+	     	   ,day
+	     	   ,title
+	     	   ,content from libcalendar
+	 </select>
+	 
+	 <select id="calDAO.selectCalDetail" resultClass="calVO">
+      SELECT    UNQ
+      		   ,year
+		       ,month   
+		       ,day   
+		       ,title
+		       ,content
+		       ,file1
+	     FROM
+	             libcalendar
+	      WHERE 
+	             unq=#unq#
+	   </select>
+	   <insert id="calDAO.insertCal">
+	   		insert into libcalendar (
+	   					unq
+	   				   ,year
+	   				   ,month
+	   				   ,day
+	   				   ,title
+	   				   ,content
+	   				   ,file1)
+	   				   values (libcalendar_seq.nextval,#year#,#month#,#day#,#title#,#content#,#file1#)
+	   
+	   </insert>
+	   <update id="calDAO.updateLibCalModifySave">
+	   		update libcalendar set
+	   			year=#year#
+	   			,month=#month#
+	   			,day=#day#
+	   			,title=#title#
+	   			,content=#content#
+	   			,FILE1=CASE
+			        WHEN '$file1$' IS NOT NULL THEN '$file1$'
+			        ELSE FILE1
+			   			 END
+	   				where unq = #unq#
+	   </update>
+	   <delete id="calDAO.deleteCal">
+	   		delete from libcalendar where unq = #unq#
+	   </delete>
+	   
+	    <select id="calDAO.selectThisMonthList" resultClass="egovMap">
+	     select unq,year,month,day,title,content from libcalendar
+	     WHERE EXTRACT(MONTH FROM CURRENT_DATE) = month
+	     order by day asc
+	    </select>
+	 
+   
+   
+	
+</sqlMap>
+
+
+
+
+
+
+

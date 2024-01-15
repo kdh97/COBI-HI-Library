@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+
+<sqlMap namespace="LibAdminSpace">
+	<typeAlias  alias="egovMap"   type="org.egovframe.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="defaultVO" type="egov.library.service.DefaultVO"/>
+	<typeAlias  alias="libMemberVO"  type="egov.library.service.LibMemberVO"/>
+
+	<select id="libAdminDAO.selectAdminMemberList" resultClass="egovMap">
+		SELECT b.* FROM (
+	     		SELECT rownum rn, a.* FROM ( 
+				        SELECT userid
+							  ,name
+							  ,to_char(birth,'yyyy-mm-dd') birth
+							  ,phone
+							  ,email
+							  ,to_char(rdate,'yyyy-mm-dd') rdate
+							  ,state
+						FROM LIBMEMBERINFO	  
+						WHERE  
+						state = 'N' AND userid != 'admin'
+						AND
+				        	1=1
+				  <isNotNull property="searchCondition">
+				  	<isNotEmpty property="searchCondition">
+				    	AND $searchCondition$ LIKE '%$searchKeyword$%'
+			      	</isNotEmpty>
+			      </isNotNull>
+				     
+				  ) a 
+				   		
+				  ) b
+		WHERE 	
+		  		rn  BETWEEN  $firstIndex$  AND  $lastIndex$ ORDER BY rn
+	</select>
+	
+	<select id="libAdminDAO.selectAdminMemberList2" resultClass="egovMap">
+		SELECT b.* FROM (
+	     		SELECT rownum rn, a.* FROM ( 
+				        SELECT userid
+							  ,name
+							  ,to_char(birth,'yyyy-mm-dd') birth
+							  ,phone
+							  ,email
+							  ,to_char(rdate,'yyyy-mm-dd') rdate
+							  ,state
+						FROM LIBMEMBERINFO	  
+						WHERE  
+						state = 'Y'
+						AND
+				        	1=1
+				  <isNotNull property="searchCondition">
+				  	<isNotEmpty property="searchCondition">
+				    	AND $searchCondition$ LIKE '%$searchKeyword$%' ORDER BY rn
+			      	</isNotEmpty>
+			      </isNotNull>
+				       
+				  ) a 
+				   		
+				  ) b
+		WHERE 	
+		  		rn  BETWEEN  $firstIndex$  AND  $lastIndex$
+	</select>
+	
+	<select id="libAdminDAO.selectMemberListTotal" resultClass="int">
+		SELECT COUNT(*) total FROM LIBMEMBERINFO
+				   WHERE state = 'N'
+		           AND 1=1
+				  <isNotNull property="searchCondition">
+				  	<isNotEmpty property="searchCondition">
+				    	AND $searchCondition$ LIKE '%$searchKeyword$%'
+			      	</isNotEmpty>
+			      </isNotNull>
+	</select>
+	
+	<select id="libAdminDAO.selectMemberListTotal2" resultClass="int">
+		SELECT COUNT(*) total FROM LIBMEMBERINFO
+				   WHERE state = 'Y'
+		           AND 1=1
+				  <isNotNull property="searchCondition">
+				  	<isNotEmpty property="searchCondition">
+				    	AND $searchCondition$ LIKE '%$searchKeyword$%'
+			      	</isNotEmpty>
+			      </isNotNull>
+	</select>
+	
+	<select id="libAdminDAO.selectLibAdminMemberModify" resultClass="libmemberVO">
+		SELECT userid
+			  ,name
+			  ,to_char(birth,'yyyy-mm-dd') birth
+			  ,phone
+			  ,email
+			  ,addr1
+			  ,addr2
+			  ,mailchk
+			  ,smschk
+			  ,to_char(rdate,'yyyy-mm-dd') rdate
+			  ,state
+		FROM 
+			 LIBMEMBERINFO
+		WHERE
+			 userid=#userid#	   
+	</select>
+	
+	<select id="libAdminDAO.selectLibAdminMemberModify2" resultClass="libmemberVO">
+		SELECT userid
+			  ,name
+			  ,to_char(birth,'yyyy-mm-dd') birth
+			  ,phone
+			  ,email
+			  ,addr1
+			  ,addr2
+			  ,mailchk
+			  ,smschk
+			  ,to_char(rdate,'yyyy-mm-dd') rdate
+			  ,state
+		FROM 
+			 LIBMEMBERINFO
+		WHERE
+			 userid=#userid#	   
+	</select>
+	
+	<update id="libAdminDAO.updateLibAdminMemberModifySave">
+		UPDATE LIBMEMBERINFO SET birth=#birth#
+								,phone=#phone#
+								,email=#email#
+								,addr1=#addr1#
+								,addr2=#addr2#
+								,mailchk=#mailchk#
+			  					,smschk=#smschk#
+			  					,state=#state#
+		WHERE userid=#userid#	  					
+	</update>
+	
+	<delete id="libAdminDAO.deleteLibAdminMember">
+		DELETE FROM LIBMEMBERINFO WHERE userid=#userid#
+	</delete>
+</sqlMap>

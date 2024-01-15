@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="LibMemberSpace">
+	<typeAlias  alias="egovMap"  type="org.egovframe.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="libmemberVO" type="egov.library.service.LibMemberVO"/>
+	
+	<insert id="libMemberDAO.insertLibMember">
+		INSERT INTO LIBMEMBERINFO(userid
+								 ,userpass
+								 ,name
+								 ,birth
+								 ,phone
+								 ,email
+								 ,addr1
+								 ,addr2
+								 ,mailchk
+								 ,smschk
+								 ,rdate
+								 ,udate
+								 ,state) 
+						  VALUES(#userid#
+						  	    ,#userpass#
+						  	    ,#name#
+						  	    ,#birth#
+						  	    ,#phone#
+						  	    ,#email#
+						  	    ,#addr1#
+						  	    ,#addr2#
+						  	    ,#mailchk#
+						  	    ,#smschk#
+						  	    ,sysdate
+						  	    ,sysdate
+						  	    ,'N')
+	</insert>
+	
+	<select id="libMemberDAO.selectLibMemberUserid" resultClass="int">
+		SELECT COUNT(*) FROM LIBMEMBERINFO WHERE userid=#userid#
+	</select>
+	
+	<select id="libMemberDAO.selectLibMemberLogin" resultClass="java.lang.String">
+		SELECT name FROM LIBMEMBERINFO WHERE userid=#userid# AND userpass=#userpass#
+	</select>
+	
+	<select id="libMemberDAO.selectLibMemberDetail" resultClass="libmemberVO">
+		SELECT userid
+			  ,userpass
+			  ,name
+			  ,to_char(birth,'yyyy-mm-dd') birth
+			  ,phone
+			  ,email
+			  ,addr1
+			  ,addr2
+			  ,mailchk
+			  ,smschk
+			  ,to_char(rdate,'yyyy-mm-dd') rdate
+		FROM 
+			 LIBMEMBERINFO
+		WHERE
+			 userid=#userid#	   
+	</select>
+	
+	<select id="libMemberDAO.selectUserPass" resultClass="int">
+		SELECT COUNT(*) FROM LIBMEMBERINFO WHERE userid=#userid# AND userpass=#userpass#
+	</select>
+	
+	<update id="libMemberDAO.updateLibMemberModifySave">
+		UPDATE LIBMEMBERINFO SET birth=#birth#
+								,phone=#phone#
+								,email=#email#
+								,addr1=#addr1#
+								,addr2=#addr2#
+								,mailchk=#mailchk#
+			  					,smschk=#smschk#
+			  					,udate=sysdate
+		WHERE userid=#userid#	  					
+	</update>
+	
+	<select id="libMemberDAO.selectFindUserId" resultClass="string">
+		SELECT userid FROM LIBMEMBERINFO WHERE name=#name# AND email=#email#
+	</select>
+	
+	<select id="libMemberDAO.selectUserPassExistCount" resultClass="int">
+		SELECT count(userpass) FROM LIBMEMBERINFO 
+		WHERE 
+			userid=#userid# 
+		AND 
+			name=#name# 
+		AND 
+			email=#email#
+	</select>
+	
+	<update id="libMemberDAO.updateLibUserPass">
+		UPDATE LIBMEMBERINFO SET userpass=#userpass# WHERE userid=#userid#
+	</update>
+	
+	<update id="libMemberDAO.updateLibPassChange">
+		UPDATE LIBMEMBERINFO SET userpass=#userpass2# WHERE userid=#userid# AND userpass=#userpass1#
+	</update>
+	
+	<select id="libMemberDAO.selectLibMemberState" resultClass="string">
+		SELECT state FROM LIBMEMBERINFO WHERE userid=#userid#
+	</select>
+	
+	<update id="libMemberDAO.updateLibMemberResign">
+		UPDATE LIBMEMBERINFO SET state='Y' WHERE userid=#userid# AND userpass=#userpass#
+	</update>
+	
+	<select id="libMemberDAO.selectBookCount" resultClass="int">
+		SELECT COUNT(id) FROM BOOK WHERE id=#userid#
+	</select>
+	
+	<select id="libMemberDAO.selectLoginInfo" resultClass="libmemberVO">
+		SELECT name FROM LIBMEMBERINFO WHERE userid=#userid#
+	</select>
+	
+	<select id="libMemberDAO.selectReserveCount" resultClass="int">
+		SELECT COUNT(session_id) FROM LIBRESERVE WHERE session_id=#userid#
+	</select>
+</sqlMap>
